@@ -93,16 +93,16 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 4 & 5 – Попълване на формата (Time Limit = 1, Visibility = Link Only)
+    // STEP 4, 5 – Попълване на формата
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 4 & 5: Fill form with 1 min limit and Link Only', async () => {
         await page.locator('input[type="text"]').fill(testTitle);
         await page.locator('textarea').fill('Testing 1 min timeout and Link Only feature');
         
-        // Избираме Visibility - точния текст от падащото меню
+        
         await page.getByRole('combobox').selectOption({ label: 'Link Only - Only those with link' });
         
-        // Слагаме Time Limit 1 минута
+        
         await page.getByPlaceholder('No limit').fill('1'); 
         
         await page.getByRole('button', { name: 'Create & Add Questions' }).click();
@@ -120,7 +120,7 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
         await expect(questionInput).toBeVisible({ timeout: 10_000 });
         await questionInput.fill('What is 2 + 2?');
 
-        // Използваме работещия локатор от Задача 2
+        //  локатор от Задача 2
         await page.locator('select').first().selectOption('multi_select');
         await page.getByRole('textbox', { name: 'Answer 1' }).fill('4');
         await page.getByRole('textbox', { name: 'Answer 2' }).fill('2');
@@ -134,15 +134,15 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
     // STEP 7 – Извличане на линка и достъпване на теста
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 7: Extract link and access the test', async () => {
-        // Търсим input полето, което съдържа линка (започва с http и има /t/ в него)
+       
         const linkInput = page.locator('input[value*="/t/"]').first();
         await expect(linkInput).toBeVisible({ timeout: 10_000 });
         
-        // Взимаме текста (URL-а) от полето
+        
         shareLink = await linkInput.inputValue();
         console.log(`Извлечен линк: ${shareLink}`);
 
-        // Отиваме на извлечения линк
+        
         await page.goto(shareLink);
         await page.waitForLoadState('domcontentloaded');
         await expect(page.getByText(testTitle)).toBeVisible({ timeout: 15_000 });
@@ -152,7 +152,7 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
     // STEP 8 – Стартиране и изчакване на 1 минута таймаут
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 8: Start test and wait for time to run out', async () => {
-        // Попълваме името и стартираме
+       
         const usernameInput = page.getByLabel(/username|name/i)
             .or(page.getByPlaceholder(/username|name/i))
             .or(page.locator('input[type="text"]').first());
@@ -161,14 +161,14 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
         const startBtn = page.getByRole('button', { name: /Start|Старт/i });
         await startBtn.click();
 
-        // Чакаме страницата с въпроса да зареди (очакваме да видим въпроса)
+        
         await expect(page.locator('input[type="checkbox"]').first()).toBeVisible({ timeout: 10_000 });
 
-        // ⏱ ИЗЧАКВАМЕ ВРЕМЕТО ДА ИЗТЕЧЕ (60 секунди + 5 секунди буфер)
+       
         console.log('Чакаме 65 секунди времето да изтече...');
         await page.waitForTimeout(65_000); 
 
-        // Очакваме тестът да се затвори сам/да изпише съобщение за край на времето
+        
         await page.waitForLoadState('networkidle');
     });
 
@@ -179,29 +179,29 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
         await page.goto(`${host}/dashboard`);
         await page.waitForLoadState('networkidle');
 
-        // Намираме реда (tr), който съдържа заглавието на нашия тест
+        
         const testRow = page.locator('tr').filter({ hasText: testTitle }).first();
         
-        // Кликаме на текста "Results" в този конкретен ред
+        
         await testRow.getByText('Results', { exact: true }).click();
         
-        // Изчакваме страницата с резултатите да зареди
+        
         await page.waitForLoadState('networkidle');
         await expect(page.getByRole('heading', { name: 'Test Results' })).toBeVisible({ timeout: 10_000 });
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 10 – Проверка в Analytics (НЕ трябва да има подаден отговор)
+    // STEP 10 – Проверка в Analytics 
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 10: Verify NO answers in Analytics', async () => {
         // Кликаме на таба "Analytics"
         await page.getByText('Analytics', { exact: true }).click();
         await page.waitForLoadState('networkidle');
 
-        // Търсим точно текста, който е заграден в червено на снимката
+      
         const noAnswersText = page.getByText('0 / 0 answered correctly');
             
-        // Проверяваме дали този текст се визуализира успешно
+       
         await expect(noAnswersText).toBeVisible({ timeout: 10_000 });
     });
     // ─────────────────────────────────────────────────────────────────────────
@@ -215,10 +215,10 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
             await dialog.accept();
         });
 
-        // Кликаме първия Delete бутон (този на самия тест в списъка)
+       
         await page.getByRole('button', { name: 'Delete' }).first().click();
 
-        // Обработваме HTML модален прозорец (ако сайтът ползва такъв)
+       
         const confirmBtn = page.getByRole('button', { name: 'Delete', exact: true }).last()
             .or(page.getByRole('button', { name: 'Yes' }))
             .or(page.getByRole('button', { name: 'Confirm' }));

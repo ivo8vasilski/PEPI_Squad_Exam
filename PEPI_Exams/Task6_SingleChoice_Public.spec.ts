@@ -65,7 +65,7 @@ test('Task 6: Single Choice test with 4 questions, visible to all', async ({ pag
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 3, 4 & 5 – Създаване на тест (Public, Max Attempts 1)
+    // STEP 3, 4, 5 – Създаване на тест
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 3-5: Create Test Setup', async () => {
         const createTestBtn = page.getByRole('link', { name: /Create Test/i }).or(page.getByRole('button', { name: /Create Test/i }));
@@ -75,17 +75,17 @@ test('Task 6: Single Choice test with 4 questions, visible to all', async ({ pag
 
         await page.locator('input[type="text"]').fill(testTitle);
         
-        // Visibility - Public
+        
         await page.locator('select').first().selectOption('public');
         
-        // Max Attempts - 1
+        
         await page.getByRole('spinbutton').nth(1).fill('1');
         
         await page.getByRole('button', { name: 'Create & Add Questions' }).click();
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 6 – Добавяне на 4 въпроса (Single Choice)
+    // STEP 6 – Добавяне на 4 въпроса 
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 6: Add 4 Single Choice questions', async () => {
         for (let i = 1; i <= 4; i++) {
@@ -94,17 +94,17 @@ test('Task 6: Single Choice test with 4 questions, visible to all', async ({ pag
             const btnText = (i === 1) ? 'Add your first question' : 'Add Question';
             await page.getByRole('button', { name: btnText }).click();
 
-            // Попълваме въпроса
+            
             await page.locator('textarea').first().fill(`Single Choice Question ${i}`);
             
-            // 👉 ПОПРАВЕНО: Използваме странното value="multiple_choice" от DOM дървото!
+        
             await page.locator('select').first().selectOption('multiple_choice');
             
-            // Попълваме отговорите чрез placeholder
+            
             await page.getByPlaceholder('Answer 1').fill('Correct Answer');
             await page.getByPlaceholder('Answer 2').fill('Wrong Answer');
             
-            // Маркираме първия radio button като правилен
+            
             await page.locator('input[type="radio"]').first().check({ force: true });
             
             await page.getByRole('button', { name: 'Save Question' }).click();
@@ -113,10 +113,10 @@ test('Task 6: Single Choice test with 4 questions, visible to all', async ({ pag
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 7, 8 & 9 – Търсене в Explore, стартиране БЕЗ юзърнейм и решаване
+    // STEP 7, 8, 9 – Търсене в Explore
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 7-9: Search in Explore, start without username and solve', async () => {
-        // Отиваме в Explore и търсим
+        
         await page.goto(`${host}/explore`);
         await page.waitForLoadState('networkidle');
 
@@ -128,25 +128,25 @@ test('Task 6: Single Choice test with 4 questions, visible to all', async ({ pag
         await page.getByText(testTitle, { exact: true }).click();
         await page.waitForLoadState('domcontentloaded');
         
-        // ❌ Нарочно НЕ попълваме полето за име, директно кликаме Start Test
+       
         await page.getByRole('button', { name: /Start|Старт/i }).click();
 
-        // Изчакваме първия радио бутон (опция за отговор) да се появи
+        
         const radioOptions = page.locator('input[type="radio"]');
         await expect(radioOptions.first()).toBeVisible({ timeout: 15_000 });
 
-        // Интелигентно решаване на теста:
+        
         const radiosCount = await radioOptions.count();
         
-        // Ако има повече от 2 радио бутона на екрана, значи всичките 4 въпроса са на 1 страница
+        
         if (radiosCount > 2) {
-            // Маркираме първия отговор на всеки от 4-те въпроса (0, 2, 4, 6)
+            
             for (let i = 0; i < 4; i++) {
                 await radioOptions.nth(i * 2).check({ force: true });
             }
             await page.getByRole('button', { name: /Submit Test|Finish/i }).click();
         } 
-        // Иначе въпросите са на отделни страници с бутон Next
+       
         else {
             for (let i = 0; i < 4; i++) {
                 await radioOptions.first().check({ force: true });
@@ -159,7 +159,7 @@ test('Task 6: Single Choice test with 4 questions, visible to all', async ({ pag
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 10-11 – Проверка в Analytics за 1 отговор (поради Max Attempts 1)
+    // STEP 10-11 – Проверка в Analytics
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 10-11: Check Analytics for 1 response', async () => {
         await page.goto(`${host}/dashboard`);
@@ -171,9 +171,7 @@ test('Task 6: Single Choice test with 4 questions, visible to all', async ({ pag
         await page.getByText('Analytics', { exact: true }).click();
         await page.waitForLoadState('networkidle');
 
-        // 👉 ПОПРАВЕНО: Тъй като имаме 4 въпроса, текстът излиза 4 пъти. 
-        // Търсим конкретно този текст и взимаме първото му срещане (.first()), 
-        // за да не се сърди Playwright (strict mode violation).
+        
         const oneResponseIndicator = page.getByText('1 / 1 answered correctly').first();
         
         await expect(oneResponseIndicator).toBeVisible({ timeout: 15_000 });

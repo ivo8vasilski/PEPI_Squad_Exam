@@ -93,7 +93,7 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
         await page.locator('input[type="text"]').fill(testTitle);
         await page.locator('textarea').fill('Testing 1 min timeout and Link Only feature');
         
-        // 👉 ПОПРАВЕНО: Използваме точния текст вместо регулярен израз
+        
         await page.getByRole('combobox').selectOption({ label: 'Link Only - Only those with link' });
         
         // Слагаме Time Limit 1 минута
@@ -158,7 +158,7 @@ test('Task 3: Create Test with 1 min timeout, link-only and verify no answer on 
         // Чакаме страницата с въпроса да зареди (очакваме да видим въпроса)
         await expect(page.locator('input[type="checkbox"]').first()).toBeVisible({ timeout: 10_000 });
 
-        // ⏱ ИЗЧАКВАМЕ ВРЕМЕТО ДА ИЗТЕЧЕ (60 секунди + 5 секунди буфер)
+        
         console.log('Чакаме 65 секунди времето да изтече...');
         await page.waitForTimeout(65_000); 
 

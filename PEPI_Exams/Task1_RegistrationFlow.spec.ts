@@ -85,7 +85,7 @@ test('Task 2: Create Test with Max Attempts = 1 and verify retry blocked', async
           await page.goto(`${host}/create-test`, { waitUntil: 'domcontentloaded' });
       }
 
-      // ✅ Вместо да чакаме URL-а, просто чакаме да се появи заглавието на новата страница
+     
       await expect(page.getByRole('heading', { name: 'Create New Test' })).toBeVisible({ timeout: 15_000 });
   });
 

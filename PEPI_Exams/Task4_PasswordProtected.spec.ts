@@ -72,7 +72,7 @@ test('Task 4: Password protected test with 2 Multiple Select questions', async (
         await page.locator('input[type="text"]').fill(testTitle);
         await page.locator('textarea').fill('Testing password protection and multiple questions');
         
-        // 👉 ПОПРАВЕНО: Използваме точния value атрибут от твоята снимка
+       
         await page.locator('select').first().selectOption('password_protected');
         
         // След като изберем парола, трябва да се появи поле за нея

@@ -5,9 +5,9 @@ dotenv.config();
 
 test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page, request }) => {
 
-    test.setTimeout(360_000); // 6 минути
+    test.setTimeout(360_000);
 
-    // ── Config ────────────────────────────────────────────────────────────────
+    
     const password = process.env.TEST_USER_PASSWORD;
     if (!password) {
         throw new Error('ГРЕШКА: TEST_USER_PASSWORD не е дефинирана в .env файла!');
@@ -83,7 +83,7 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 4 – Добавяне на 3 различни вида въпроси (СЪС СИНХРОНИЗАЦИЯ)
+    // STEP 4 – Добавяне на 3 различни вида въпроси
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 4: Add 3 types of questions', async () => {
         // --- 1. Single Choice ---
@@ -97,7 +97,7 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
         await page.locator('input[type="radio"]').first().check({ force: true });
         
         await page.getByRole('button', { name: 'Save Question' }).click();
-        // 👉 ЧАКАМЕ формата да изчезне (успешен запис)
+        
         await expect(page.getByRole('button', { name: 'Save Question' })).toBeHidden({ timeout: 10_000 });
         await expect(page.getByText('Q1: Single Choice Question')).toBeVisible();
 
@@ -113,7 +113,7 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
         await page.locator('input[type="checkbox"]').nth(1).check({ force: true });
         
         await page.getByRole('button', { name: 'Save Question' }).click();
-        // 👉 ЧАКАМЕ формата да изчезне
+    
         await expect(page.getByRole('button', { name: 'Save Question' })).toBeHidden({ timeout: 10_000 });
         await expect(page.getByText('Q2: Multiple Select Question')).toBeVisible();
 
@@ -126,7 +126,7 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
         await page.getByPlaceholder('Enter the correct answer').fill('20');
         
         await page.getByRole('button', { name: 'Save Question' }).click();
-        // 👉 ЧАКАМЕ формата да изчезне
+        
         await expect(page.getByRole('button', { name: 'Save Question' })).toBeHidden({ timeout: 10_000 });
         await expect(page.getByText('Q3: What is 10 + 10?')).toBeVisible();
     });
@@ -135,17 +135,17 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
     // STEP 5 – Промяна на един от въпросите
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 5: Edit one question', async () => {
-        // 👉 ПОПРАВЕНО: Взимаме директно първия бутон "Edit" на екрана!
+    
         await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
 
-        // Изчакваме формата за редакция да се отвори
+        
         const editTextArea = page.locator('textarea:visible').first();
         await expect(editTextArea).toBeVisible({ timeout: 10_000 });
         
         await editTextArea.fill('Q1: EDITED Single Choice Question');
         await page.getByRole('button', { name: /Save|Update/i }).click();
         
-        // ЧАКАМЕ формата да се затвори
+        
         await expect(page.getByRole('button', { name: /Save|Update/i })).toBeHidden({ timeout: 10_000 });
         await expect(page.getByText('Q1: EDITED Single Choice Question')).toBeVisible();
     });
@@ -166,7 +166,7 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 8 & 9 – Вярна парола и Изпълнение
+    // STEP 8 & 9 – Вярна парола
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Step 8-9: Correct Password and Solve Test', async () => {
         const testPasswordField = page.locator('input[type="password"]');
@@ -184,7 +184,7 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
 
         const nextBtn = page.getByRole('button', { name: /Next/i });
 
-        // --- Q1: Single Choice ---
+        //  Single Choice 
         await page.locator('input[type="radio"]').first().check({ force: true });
         if (await nextBtn.isVisible()) await nextBtn.click();
 
@@ -194,7 +194,7 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
         await page.locator('input[type="checkbox"]').nth(1).check({ force: true });
         if (await nextBtn.isVisible()) await nextBtn.click();
 
-        // --- Q3: Exact Answer ---
+        //Exact Answer
         const exactField = page.getByPlaceholder('Type your answer');
         await expect(exactField).toBeVisible({ timeout: 5_000 });
         await exactField.fill('20');
@@ -216,8 +216,8 @@ test('Task 7: THE GREAT MYSTERY - Comprehensive Integration Test', async ({ page
         await page.getByText('Analytics', { exact: true }).click();
         await page.waitForLoadState('networkidle');
         
-        // 👉 ПОПРАВЕНО: Махаме .or() веригата. Търсим само конкретния текст и взимаме първия, 
-        // за да избегнем strict mode violation.
+         
+        
         await expect(page.getByText('1 / 1 answered correctly').first()).toBeVisible({ timeout: 15_000 });
     });
 

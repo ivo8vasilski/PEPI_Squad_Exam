@@ -1,0 +1,62 @@
+{
+    "companyName": "SquadEXAM Enterprise",
+    "users": {
+      "admin": { "first_name": "Ivo", "last_name": "Admin" },
+      "instructor": { "first_name": "Pepi", "last_name": "Instructor" },
+      "students": [
+        { "first_name": "Student", "last_name": "Three" },
+        { "first_name": "Student", "last_name": "Four" },
+        { "first_name": "Student", "last_name": "Five" }
+      ]
+    },
+    "topics": [
+      {
+        "folder": "Български език и литература",
+        "testTitle": "БЕЛ - Матура 2026",
+        "questions": [
+          { "text": "Кой е авторът на романа 'Под игото'?", "type": "multiple_choice", "answers": [{"text": "Иван Вазов", "correct": true}, {"text": "Христо Ботев", "correct": false}] },
+          { "text": "Кои от изброените са творби на Христо Ботев?", "type": "multi_select", "answers": [{"text": "Хаджи Димитър", "correct": true}, {"text": "Обесването на Васил Левски", "correct": true}, {"text": "Епопея на забравените", "correct": false}] },
+          { "text": "В кой град е роден Алеко Константинов?", "type": "exact_answer", "correct_answer": "Свищов" },
+          { "text": "Какъв е жанрът на 'Гераците'?", "type": "multiple_choice", "answers": [{"text": "Повест", "correct": true}, {"text": "Роман", "correct": false}] },
+          { "text": "Маркирайте стихотворения на Пейо Яворов:", "type": "multi_select", "answers": [{"text": "Две хубави очи", "correct": true}, {"text": "Градушка", "correct": true}, {"text": "Спи езерото", "correct": false}] },
+          { "text": "Довършете заглавието на поемата: 'Cивият ______'", "type": "exact_answer", "correct_answer": "гълъб" },
+          { "text": "Кое художествено средство е 'златна есен'?", "type": "multiple_choice", "answers": [{"text": "Епитет", "correct": true}, {"text": "Метафора", "correct": false}] },
+          { "text": "Кои автори пишают в епохата на Българското възраждане?", "type": "multi_select", "answers": [{"text": "Паисий Хилендарски", "correct": true}, {"text": "Добри Чинтулов", "correct": true}, {"text": "Димчо Дебелянов", "correct": false}] },
+          { "text": "Напишете фамилията на поета Димчо:", "type": "exact_answer", "correct_answer": "Дебелянов" },
+          { "text": "Кой е централният образ в поемата 'Ралица'?", "type": "multiple_choice", "answers": [{"text": "Ралица", "correct": true}, {"text": "Иво", "correct": false}] }
+        ]
+      },
+      {
+        "folder": "Въведение в ООП",
+        "testTitle": "ООП - Основи на Java/C#",
+        "questions": [
+          { "text": "Кой принцип крие вътрешното състояние на обекта?", "type": "multiple_choice", "answers": [{"text": "Инкапсулация", "correct": true}, {"text": "Полиморфизъм", "correct": false}] },
+          { "text": "Кои от изброените са основни стълбове на ООП?", "type": "multi_select", "answers": [{"text": "Наследяване", "correct": true}, {"text": "Полиморфизъм", "correct": true}, {"text": "Компилация", "correct": false}] },
+          { "text": "Как се нарича ключовата дума за наследяване в Java?", "type": "exact_answer", "correct_answer": "extends" },
+          { "text": "Кой метод се вика автоматично при създаване на обект?", "type": "multiple_choice", "answers": [{"text": "Конструктор", "correct": true}, {"text": "Деструктор", "correct": false}] },
+          { "text": "Кои модификатори ограничават достъпа до членове на клас?", "type": "multi_select", "answers": [{"text": "private", "correct": true}, {"text": "protected", "correct": true}, {"text": "public", "correct": false}] },
+          { "text": "Напишете ключовата дума за създаване на обект:", "type": "exact_answer", "correct_answer": "new" },
+          { "text": "Може ли абстрактен клас да се инстанцира директно?", "type": "multiple_choice", "answers": [{"text": "Не", "correct": true}, {"text": "Да", "correct": false}] },
+          { "text": "Кои колекции гарантират уникалност на елементите?", "type": "multi_select", "answers": [{"text": "HashSet", "correct": true}, {"text": "TreeSet", "correct": true}, {"text": "ArrayList", "correct": false}] },
+          { "text": "Как се нарича интерфейс без нито един метод в него? (тип)", "type": "exact_answer", "correct_answer": "marker" },
+          { "text": "Кой клас е родител на всички класове в Java/C#?", "type": "multiple_choice", "answers": [{"text": "Object", "correct": true}, {"text": "Class", "correct": false}] }
+        ]
+      },
+      {
+        "folder": "Италианска кухня",
+        "testTitle": "Кулинарна Академия - Италия",
+        "questions": [
+          { "text": "Кое сирене е основната съставка на истинското Тирамису?", "type": "multiple_choice", "answers": [{"text": "Маскарпоне", "correct": true}, {"text": "Рикота", "correct": false}] },
+          { "text": "Кои съставки са задължителни за класически сос Песто Дженовезе?", "type": "multi_select", "answers": [{"text": "Босилек", "correct": true}, {"text": "Кедрови ядки", "correct": true}, {"text": "Сметану", "correct": false}] },
+          { "text": "Как се нарича италианската сушена шунка от Парма?", "type": "exact_answer", "correct_answer": "Прошуто" },
+          { "text": "Какво означава терминът 'Ал денте' (Al dente) за паста?", "type": "multiple_choice", "answers": [{"text": "Леко твърда на зъб", "correct": true}, {"text": "Преварена", "correct": false}] },
+          { "text": "Кои билки се използват най-често в италианската кухня?", "type": "multi_select", "answers": [{"text": "Риган", "correct": true}, {"text": "Босилек", "correct": true}, {"text": "Чубрица", "correct": false}] },
+          { "text": "Напишете името на италианския ориз, идеален за ризото:", "type": "exact_answer", "correct_answer": "Арборио" },
+          { "text": "Коя пица съдържа само домати, моцарела и босилек?", "type": "multiple_choice", "answers": [{"text": "Маргарита", "correct": true}, {"text": "Пеперони", "correct": false}] },
+          { "text": "Кои алкохолни напитки произлизат от Италия?", "type": "multi_select", "answers": [{"text": "Лимончело", "correct": true}, {"text": "Просеко", "correct": true}, {"text": "Узо", "correct": false}] },
+          { "text": "Как се нарича видът хляб, типичен за Тоскана (плосък с маслини)?", "type": "exact_answer", "correct_answer": "Фокача" },
+          { "text": "От коя италианска област произлиза пицата?", "type": "multiple_choice", "answers": [{"text": "Кампания (Неапол)", "correct": true}, {"text": "Тоскана", "correct": false}] }
+        ]
+      }
+    ]
+  }

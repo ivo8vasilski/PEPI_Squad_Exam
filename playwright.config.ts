@@ -1,35 +1,49 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 
-/**
- * Прочитане на .env файла.
- * Това ще направи променливите от .env достъпни чрез process.env
- */
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 export default defineConfig({
-  testDir: '.',
+  /* 👉 КОРЕКЦИЯ: Указваме на Playwright да сканира конкретно папките с твоите и на Любо изпити 👈 */
+  testDir: './PEPI_Squad_Exam_Tests',
+  
   testMatch: ['**/*.spec.ts', '**/*.test.ts'],
   
-  /* 👉 ГЛОБАЛЕН ТАЙМАУТ: 1 минута (60 000 ms) 👈 */
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+
+  /* Глобален таймаут за теста */
   timeout: 60_000,
   
-  /* Таймаут за проверките (expect) - 15 секунди */
   expect: {
     timeout: 15_000,
   },
 
-  /* Репортери - как да изглежда резултатът */
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
   ],
 
-  /* Основни настройки за браузърите */
   use: {
-    // Тук можеш да добавиш baseURL или да скриеш паролите в лога, ако е нужно
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
 });

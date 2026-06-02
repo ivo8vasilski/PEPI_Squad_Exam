@@ -106,7 +106,7 @@ test('Task 8: Enterprise POM Architecture Workflow fed by JSON', async ({ page, 
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // СТЪПКА 3 – ИНСТРУКТОРЪТ СЪЗДАВА ПАПКИ И ТЕСТОВЕ ПРЕЗ ДРОПДАУН (30 въпроса)
+    // СТЪПКА 3 – ИНСТРУКТОРЪТ СЪЗДАВА ПАПКИ И ТЕСТОВЕ ПРЕЗ ДРОПДАУН (Поправена срещу Флейк)
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('User 2 (Instructor) populates folders and questions dynamically from JSON', async () => {
         await loginPage.gotoLoginPage();
@@ -123,13 +123,25 @@ test('Task 8: Enterprise POM Architecture Workflow fed by JSON', async ({ page, 
             await page.waitForTimeout(500);
         }
 
-        // ЧАСТ 2: За всяка тема отваряме формата за тест и я асоциираме с правилната папка през падащото меню
+        // ЧАСТ 2: За всяка тема отваряме формата за тест и добавяме въпросите
         for (const topic of testData.topics) {
             await companyManagement.CreateTestButton();
             await createTest.initTest(topic.testTitle, topic.folder);
 
+            let isFirstQuestion = true;
             for (const question of topic.questions) {
                 await addQuestion.addQuestion(question);
+                
+                // 👉 ФИКС СРЕЩУ RACE CONDITION: Ако това е първият въпрос, изчакваме UI състоянието 
+                // "No questions yet." и "Add your first question" стабилно да се демонтират от екрана.
+                if (isFirstQuestion) {
+                    await expect(page.getByText('No questions yet.')).toBeHidden({ timeout: 10000 });
+                    await expect(page.getByRole('button', { name: 'Add your first question' })).toBeHidden({ timeout: 10000 });
+                    isFirstQuestion = false;
+                }
+
+                // Застраховка за стабилност при бърза комуникация с базата данни
+                await page.waitForLoadState('networkidle');
             }
             
             await dashboardPage.gotoCompaniesPage();
@@ -140,13 +152,10 @@ test('Task 8: Enterprise POM Architecture Workflow fed by JSON', async ({ page, 
     });
 
     // ─────────────────────────────────────────────────────────────────────────
-    // СТЪПКА 4 – ГРУПАТА РЕШАВА ВСИЧКИ ТЕСТОВЕ ДИРЕКТНО ОТ КАРТИТЕ (С Нов Таб)
+    // СТЪПКА 4 – ГРУПАТА РЕШАВА ВСИЧКИ ТЕСТОВЕ ДИРЕКТНО ОТ КАРТИТЕ (Изолирана)
     // ─────────────────────────────────────────────────────────────────────────
     await test.step('Students execute ALL tests causing score polarization', async () => {
-        // Външен цикъл: Преминава през тримата студенти (s = 0, 1, 2)
         for (let s = 0; s < studentEmails.length; s++) {
-            
-            // Вътрешен цикъл: Върти индекса на трите теста (t = 0, 1, 2) директно от основния списък на екрана
             for (let t = 0; t < testData.topics.length; t++) {
                 const topic = testData.topics[t]; 
                 
@@ -158,13 +167,19 @@ test('Task 8: Enterprise POM Architecture Workflow fed by JSON', async ({ page, 
                 await page.waitForLoadState('networkidle');
                 await page.waitForTimeout(500);
 
-                // Намираме съответния (0-ви, 1-ви или 2-ри) линк "Take" на екрана в основния контейнер
-                const mainContent = page.locator('main, #main, .container').first();
-                const currentTakeButton = mainContent.locator('a[href*="/t/"], a:has-text("Take")').nth(t);
+                // 👉 ФИКС: Филтрираме div-овете да съдържат заглавието И бутона Take.
+                  // Използваме .last(), защото в DOM дървото най-вътрешният (същинският) контейнер на картата се пада последен.
+                  const testCard = page.locator('div')
+                      .filter({ has: page.getByRole('heading', { level: 3, name: topic.testTitle }) })
+                      .filter({ has: page.getByRole('link', { name: 'Take' }) })
+                      .last();
+
+                  // 2. Бутонът "Take" вече ще бъде 100% изолиран само в пределите на тази карта
+                  const currentTakeButton = testCard.getByRole('link', { name: 'Take' });
+                  
+                  await currentTakeButton.waitFor({ state: 'visible', timeout: 5000 });
                 
-                await currentTakeButton.waitFor({ state: 'visible', timeout: 5000 });
-                
-                // АСИНХРОННО ПРИХВАЩАНЕ НА НОВИЯ ТАБ (popup), породен от target="_blank"
+                // АСИНХРОННО ПРИХВАЩАНЕ НА НОВИЯ ТАБ
                 const [popupPage] = await Promise.all([
                     page.waitForEvent('popup'),
                     currentTakeButton.click(),
@@ -172,36 +187,29 @@ test('Task 8: Enterprise POM Architecture Workflow fed by JSON', async ({ page, 
 
                 await popupPage.waitForLoadState('networkidle');
 
-                // Инициализираме Page Object за решаване изрично върху новия прихванат прозорец
                 const popupExecution = new TestExecutionPage(popupPage);
                 await popupExecution.start(`Student ${s + 3}`);
 
                 let questionIndex = 0;
                 for (const question of topic.questions) {
                     
-                    // 👉 ЗАСТРАХОВКА ЗА EXACT ANSWER: Ако изскочи синьото текстово поле, го пишем директно в popupPage
-                    const exactAnswerInput = popupPage.getByPlaceholder('Type your answer');
-                    if (await exactAnswerInput.isVisible()) {
-                        if (s === 0) {
-                            await exactAnswerInput.fill("Focaccia"); // Отличник
-                        } else {
-                            await exactAnswerInput.fill("Грешен отговор"); // Допускане на грешка по условие
-                        }
+                    // 👉 ФИКС: Оставяме изцяло на интелигентния метод answerQuestion да се оправя с типовете въпроси
+                    // и да попълва правилните/грешните отговори, тъй като вътре в него вече всичко е изолирано.
+                    if (s === 0) {
+                        // Първият студент дава само верни отговори
+                        await popupExecution.answerQuestion(question, true);
+                    } 
+                    else if (s === 1) {
+                        // Вторият студент умишлено бърка на определени индекси
+                        const shouldBeCorrect = (questionIndex !== 4 && questionIndex !== 9);
+                        await popupExecution.answerQuestion(question, shouldBeCorrect);
                     } 
                     else {
-                        // За стандартните Радио бутони / Чекбоксове викаме POM логиката на Любо
-                        if (s === 0) {
-                            await popupExecution.answerQuestion(question, true);
-                        } 
-                        else if (s === 1) {
-                            const shouldBeCorrect = (questionIndex !== 4 && questionIndex !== 9);
-                            await popupExecution.answerQuestion(question, shouldBeCorrect);
-                        } 
-                        else {
-                            const shouldBeCorrect = (questionIndex % 3 === 0);
-                            await popupExecution.answerQuestion(question, shouldBeCorrect);
-                        }
+                        // Останалите студенти редуват верни и грешни
+                        const shouldBeCorrect = (questionIndex % 3 === 0);
+                        await popupExecution.answerQuestion(question, shouldBeCorrect);
                     }
+                    
                     questionIndex++;
                 }
                 
@@ -209,13 +217,15 @@ test('Task 8: Enterprise POM Architecture Workflow fed by JSON', async ({ page, 
                 await popupExecution.Submit_Test(); 
                 await popupPage.close();
                 
-                // Излизаме от сесията на студента на главния екран
+                // Излизаме от сесията на студента
                 await dashboardPage.logout();
                 await page.waitForLoadState('networkidle');
             }
         }
     });
-
+    // ─────────────────────────────────────────────────────────────────────────
+    // СТЪПКА 5 – ИНСТРУКТОРЪТ ОДИТИРА НАЙ-ДОБРИЯ И НАЙ-СЛАБИЯ РЕЗУЛТАТ
+    // ─────────────────────────────────────────────────────────────────────────
     // ─────────────────────────────────────────────────────────────────────────
     // СТЪПКА 5 – ИНСТРУКТОРЪТ ОДИТИРА НАЙ-ДОБРИЯ И НАЙ-СЛАБИЯ РЕЗУЛТАТ
     // ─────────────────────────────────────────────────────────────────────────
@@ -226,8 +236,10 @@ test('Task 8: Enterprise POM Architecture Workflow fed by JSON', async ({ page, 
         await companiesPage.Company_button(finalCompanyName);
         await page.waitForLoadState('networkidle');
         
-        // Кликаме върху бутона на първата папка от страничния панел
+        // Отваряме папката
         await page.getByRole('button', { name: testData.topics[0].folder }).click();
-        await testResult.verifyScores();
+        
+        // 👉 ФИКС: Подаваме името на теста в метода!
+        await testResult.verifyScores(testData.topics[0].testTitle);
     });
 });

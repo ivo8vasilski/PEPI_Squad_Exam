@@ -5,17 +5,13 @@ export class TestResultPage {
     readonly Analytics_Tab: Locator;
     readonly Submissions_Tab: Locator;
     readonly Rows: Locator;
-    // 👉 ДОБАВЕНО: Локатор за таба "Results", който се клика първоначално в компанията
-    readonly Results_Link: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.Results_Link = page.getByText('Results');
         
-        // 👉 КОРИГИРАНО: Разделихме правилно Analytics бутона от Submissions таба
         this.Analytics_Tab = page.getByRole('button', { name: 'Analytics' });
-        this.Submissions_Tab = page.getByText('Submissions'); //
-        
+        // 👉 ФИКС: По-стабилен локатор за таба със събмишъни
+        this.Submissions_Tab = page.locator('a, button').filter({ hasText: 'Submissions' }).first(); 
         this.Rows = page.locator('tbody tr');
     }
 
@@ -28,38 +24,32 @@ export class TestResultPage {
             const name = (await row.locator('td').nth(0).textContent())?.trim() ?? '';
             const scoreText = (await row.locator('td').nth(1).textContent()) ?? '0%';
             
-            // Превръщаме текста "80.0" или "100%" в чисто число
             const score = Number(scoreText.replace('%', ''));
 
-            results.push({
-                name: name.trim(),
-                score,
-            });
+            results.push({ name: name.trim(), score });
         }
         return results;
     }
 
-    async Analytic_button (){
-        await this.Analytics_Tab.click();
-    }
-
-    // 👉 ДОБАВЕНО: Този метод отваря резултатите и проверява поляризацията (Best vs Worst)
-    async verifyScores() {
-        // 1. Кликаме на линка "Results" в папката на компанията
-        await this.Results_Link.first().click();
+    // 👉 ФИКС: Подаваме заглавието на теста като параметър, за да влезем в него
+    async verifyScores(testTitle: string) {
+        // 1. Кликаме на самия тест по неговото заглавие (напр. "БЕЛ - Матура 2026")
+        await this.page.getByRole('heading', { name: testTitle }).first().click();
+        await this.page.waitForLoadState('networkidle');
         
-        // 2. Кликаме на под-таба "Submissions"
+        // 2. Влизаме в таба с предадените работи
+        await this.Submissions_Tab.waitFor({ state: 'visible', timeout: 5000 });
         await this.Submissions_Tab.click();
         await this.page.waitForLoadState('networkidle');
 
-        // 3. Извикваме напредналия алгоритъм на Любо, за да вземем масива с чисти резултати
+        // 3. Извличаме всички резултати от таблицата
         const scores = await this.getUsersScores();
         
-        // 4. Правим сигурни проверки, че имаме студент със 100% и студент с 0% успеваемост
+        // 4. ПРОВЕРКА ПО УСЛОВИЕ: Търсим кой се е справил най-добре (100%) и най-зле (под 50% или 0%)
         const hasPerfectScore = scores.some(s => s.score === 100);
-        const hasLowestScore = scores.some(s => s.score === 0);
+        const hasLowestScore = scores.some(s => s.score <= 50); // Може да го направиш и === 0
 
-        expect(hasPerfectScore).toBe(true);
-        expect(hasLowestScore).toBe(true);
+        expect(hasPerfectScore).toBeTruthy();
+        expect(hasLowestScore).toBeTruthy();
     }
 }

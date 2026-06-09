@@ -138,7 +138,7 @@ await companyManagement.addNewFolder();
 await companyManagement.fillfolderName(test1.folder);
 await expect(companyManagement.createNewFolder).toBeVisible();
 await companyManagement.createFolder();
-await page.waitForTimeout(500);
+await expect(companyManagement.newFolderName).not.toBeVisible();
 
 await expect(companyManagement.newFolder).toBeVisible();
 await companyManagement.addNewFolder();
@@ -146,7 +146,7 @@ await companyManagement.fillfolderName(test2.folder);
 await expect(companyManagement.createNewFolder).toBeVisible();
 await companyManagement.createFolder();
 
-await page.waitForTimeout(500);
+await expect(companyManagement.newFolderName).not.toBeVisible();
 
 await expect(companyManagement.newFolder).toBeVisible();
 await companyManagement.addNewFolder();
@@ -385,7 +385,7 @@ await createtest.testTitle(test3.testTitle)
 await (createtest.folder).selectOption(test3.folder)
 await createtest.createButton();
 
-//Добавяне на въпроси Tест2
+//Добавяне на въпроси Tест3
 await expect (addquestion.testName).toContainText(test3.testTitle);
 await addquestion.questionButton();
 await addquestion.selectFolder(test3.folder);
@@ -527,8 +527,6 @@ for (const testData of tests) {
 
 //Студент3
 await companies.logoutAction();
-await page.context().clearCookies();
-await page.context().clearPermissions?.();
 await loginPage.login(student3Email, student3Pass);
 
 await dashboard.gotoCompaniesPage();

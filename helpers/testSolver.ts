@@ -42,16 +42,24 @@ export async function solveTest(
 
   const childPage = await pagePromise;
   await childPage.waitForLoadState('domcontentloaded');
+  await childPage.waitForURL(/\/t\//);
 
   const testExecution = new TestExecutionPage(childPage);
 
   await testExecution.addName(studentName);
   await testExecution.startTest();
 
-  for (const question of testData.questions) {
-    const shouldAnswerCorrectly = Math.random() < successRate / 100;
+  const totalQuestions = testData.questions.length;
+  const correctCount = Math.round(totalQuestions * successRate / 100);
+  const indices = Array.from({ length: totalQuestions }, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const correctIndices = new Set(indices.slice(0, correctCount));
 
-    await answerQuestion(testExecution, question, shouldAnswerCorrectly);
+  for (let i = 0; i < totalQuestions; i++) {
+    await answerQuestion(testExecution, testData.questions[i], correctIndices.has(i));
   }
 
   await testExecution.submitTest();

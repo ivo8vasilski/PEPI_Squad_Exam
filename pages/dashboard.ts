@@ -68,5 +68,11 @@ async Delete_Pop_Up_Button (){
       this.Delete_pop_up.click()
     ]);
 }
+async openResults(testTitle: string) {
+  const row = this.page.locator('tr').filter({
+    hasText: testTitle
+  });
 
+  await row.getByRole('link', { name: 'Results' }).click();
+}
 }

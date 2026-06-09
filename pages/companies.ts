@@ -39,7 +39,7 @@ async explore_link (){
     await this.explore.click();
 }
 
-async dashboard_link (){
+async gotoDashboard (){
     await this.dashboard.click();
 }
 

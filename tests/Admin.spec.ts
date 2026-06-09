@@ -8,6 +8,7 @@ import { InvitePage } from "../pages/invitation";
 import { CreateTestPage } from "../pages/create_test";
 import { AddQuestionPage } from "../pages/add_question";
 import { solveTest } from '../helpers/testSolver';
+import { TestResultPage } from "../pages/test_result";
 
 
 test("Create a company and Invite Members", async ({ context }) => {
@@ -542,5 +543,27 @@ for (const testData of tests) {
   );
 }
 
+// Проверка на резултатите от инструктора
+await companies.logoutAction();
+await loginPage.login(instructorEmail, instructorPass);
+
+const testResultPage = new TestResultPage(page);
+
+for (const testData of tests) {
+  await dashboard.openResults(testData.testTitle);
+  await expect(page.getByText('Test Results')).toBeVisible();
+
+  await testResultPage.Analytic_button();
+
+  const results = await testResultPage.getUsersScores();
+
+  const best  = results.reduce((a, b) => a.score > b.score ? a : b);
+  const worst = results.reduce((a, b) => a.score < b.score ? a : b);
+
+  expect(best.name).toContain(student1Name);
+  expect(worst.name).toContain(student3Name);
+
+  await companies.gotoDashboard();
+}
 
 });

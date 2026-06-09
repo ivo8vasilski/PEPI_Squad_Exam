@@ -101,8 +101,7 @@ async function answerQuestion(
 
     const option = testExecution.page
       .locator('label')
-      .filter({ hasText: answer.text })
-      .first();
+      .getByText(answer.text, { exact: true });
 
     await expect(option).toBeVisible();
     await option.click({ force: true });
@@ -119,8 +118,7 @@ async function answerQuestion(
     for (const answer of answers) {
       const option = testExecution.page
         .locator('label')
-        .filter({ hasText: answer.text })
-        .first();
+        .getByText(answer.text, { exact: true });
 
       await expect(option).toBeVisible();
       await option.click({ force: true });

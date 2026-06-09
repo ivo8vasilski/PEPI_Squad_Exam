@@ -3,9 +3,9 @@ import { Page, Locator } from '@playwright/test';
 export class CreateTestPage {
   readonly page: Page;
   readonly Heading: Locator;
-  readonly Title: Locator;
+  readonly title: Locator;
   readonly Description: Locator;
-  readonly Folder: Locator;
+  readonly folder: Locator;
   readonly Time_Limit: Locator;
   readonly Max_Attempts: Locator;
   readonly CreateTest_button: Locator;
@@ -14,9 +14,9 @@ export class CreateTestPage {
   constructor(page: Page) {
     this.page = page;
     this.Heading = page.getByRole('heading', { name: 'Create New Test' });
-    this.Title = page.locator('input[type="text"]');
+    this.title = page.locator('input[type="text"]');
     this.Description = page.locator('textarea');
-    this.Folder = page.getByRole('combobox');
+    this.folder = page.getByRole('combobox');
     this.Time_Limit = page.getByPlaceholder('No limit');
     this.Max_Attempts = page.getByRole('spinbutton').nth(1);
     this.CreateTest_button = page.getByRole('button', { name: 'Create & Add Questions' });
@@ -24,13 +24,13 @@ export class CreateTestPage {
 
   }
 
-async Test_Title (Title: string){
-    await this.Title.fill(Title);
+async testTitle (name: string){
+    await this.title.fill(name);
 }
-async Test_Folder(){
-    await this.Folder.selectOption('No Folder');
+async testFolder(){
+    await this.folder.selectOption('No Folder');
 }
-async Create_button (){
+async createButton (){
     await this.CreateTest_button.click();
 }
 

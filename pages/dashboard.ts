@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class DashboardPage {
   readonly page: Page;
@@ -35,8 +35,14 @@ async gotoExplorePage (){
     await this.Explore.click();
 }
 
-async gotoCompaniesPage (){
-    await this.Companies.click();
+async gotoCompaniesPage() {
+  const link = this.page.getByRole('link', { name: 'Companies' });
+
+  await this.page.waitForLoadState('domcontentloaded');
+
+  await expect(link).toBeVisible({ timeout: 15000 });
+
+  await link.click();
 }
 async createTest_first (){
     await this.CreateTest_first.click();

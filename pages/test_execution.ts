@@ -10,13 +10,15 @@ export class TestExecutionPage {
   readonly Checkbox_button: Locator;
   readonly Exact_Answer: Locator;
   readonly Submit_Button: Locator;
-  readonly Successfully_Submitted_Message_1: Locator;
-  readonly Successfully_Submitted_Message_2: Locator;
+  readonly successfullMessage_1: Locator;
+  readonly successfullMessage_2: Locator;
   readonly Error_Message: Locator;
   readonly Error_Message1: Locator;
   readonly Explore: Locator;
   readonly Companies: Locator;
   readonly Dashboard: Locator;
+  readonly labels: Locator;
+  readonly exactAnswer: Locator;
  
 
 
@@ -30,8 +32,8 @@ export class TestExecutionPage {
     this.Checkbox_button = page.getByRole('checkbox');  
     this.Exact_Answer = page.getByRole('textbox', { name: 'Type your answer' });
     this.Submit_Button = page.getByRole('button', { name: 'Submit Test' }); 
-    this.Successfully_Submitted_Message_1 = page.getByRole('heading', { name: 'Test Submitted!' });
-    this.Successfully_Submitted_Message_2 = page.getByText('Thank you for completing the');
+    this.successfullMessage_1 = page.getByText(/test submitted/i);
+    this.successfullMessage_2 = page.getByText('Thank you for completing the');
 
     this.Dashboard = page.getByRole('link', { name: 'Dashboard' });
     this.Explore = page.getByRole('link', { name: 'Explore' });
@@ -39,33 +41,37 @@ export class TestExecutionPage {
     this.Error_Message = page.getByText('Maximum attempts reached');
     this.Error_Message1 = page.getByText('Invalid password');
     this.Continue_button = page.getByRole('button', { name: 'Continue' });
+    this.labels = page.locator('label');
+    this.exactAnswer = page.getByRole('textbox');
 
 
   }
 
-async UserName (NameField: string){
-    await this.NameField.fill(NameField);
+async addName (text: string){
+    await this.NameField.fill(text);
 }
-async Click_Continue() {
+async continue() {
     await this.Continue_button.click();
 }
-async Start_Test (){
+async startTest (){
     await this.StartTest_button.click();
-}
-async Click_radio1 (){
-    await this.Radio_button.click();
-}
-async Click_CheckBox_1 (){
-    await this.Checkbox_button.click();
 }
 async Fill_Exact_Answer (Exact_Answer1: string){
     await this.Exact_Answer.fill(Exact_Answer1);
 }
-async Submit_Test (){
+async submitTest (){
     await this.Submit_Button.click();
 }
 async gotoDashboardPage (){
     await this.Dashboard.click();
 }
+async fillExactAnswer(questionText: string, answer: string) {
+  const question = this.page.locator('div.bg-white.border.rounded-lg.p-6').filter({
+    hasText: questionText
+  });
 
+  await question
+    .getByRole('textbox', { name: 'Type your answer' })
+    .fill(answer);
+}
 }

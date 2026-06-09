@@ -553,14 +553,22 @@ for (const testData of tests) {
   await dashboard.openResults(testData.testTitle);
   await expect(page.getByText('Test Results')).toBeVisible();
 
-  await testResultPage.Analytic_button();
-
   const results = await testResultPage.getUsersScores();
 
-  const best  = results.reduce((a, b) => a.score > b.score ? a : b);
-  const worst = results.reduce((a, b) => a.score < b.score ? a : b);
+  // All 3 students submitted results
+  expect(results).toHaveLength(3);
 
+  const best   = results.reduce((a, b) => a.score > b.score ? a : b);
+  const worst  = results.reduce((a, b) => a.score < b.score ? a : b);
+  const middle = results.find(r => r !== best && r !== worst)!;
+
+  // Scores are in descending order
+  expect(best.score).toBeGreaterThan(middle.score);
+  expect(middle.score).toBeGreaterThan(worst.score);
+
+  // Correct student in each position
   expect(best.name).toContain(student1Name);
+  expect(middle.name).toContain(student2Name);
   expect(worst.name).toContain(student3Name);
 
   await companies.gotoDashboard();
